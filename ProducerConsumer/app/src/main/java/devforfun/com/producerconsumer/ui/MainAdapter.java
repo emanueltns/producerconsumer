@@ -1,16 +1,16 @@
-package devforfun.com.producerconsumer;
+package devforfun.com.producerconsumer.ui;
 
 import android.content.Context;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.Collections;
 import java.util.List;
+
+import devforfun.com.producerconsumer.R;
 
 /**
  * @author emanueltanasa Date: 10/31/16.
@@ -18,7 +18,7 @@ import java.util.List;
 
 public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
 
-    private List<String> items;
+    private List<String> items = Collections.EMPTY_LIST;
     private Context context;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -30,9 +30,12 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
         }
     }
 
-    public MainAdapter(Context context, List<String> list) {
-        this.items = list;
+    public MainAdapter(Context context) {
         this.context = context;
+    }
+
+    public void update(List<String> items){
+        this.items = items;
     }
 
     @Override

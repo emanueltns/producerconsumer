@@ -1,4 +1,4 @@
-package devforfun.com.producerconsumer;
+package devforfun.com.producerconsumer.ui;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -10,23 +10,36 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ListView;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+import devforfun.com.producerconsumer.interactors.MainInteractor;
+import devforfun.com.producerconsumer.presenters.MainPresenter;
+import devforfun.com.producerconsumer.view.MainView;
+import devforfun.com.producerconsumer.R;
+
+public class MainActivity extends AppCompatActivity implements MainView {
 
     private RecyclerView recyclerView;
     private MainAdapter mainAdapter;
     private List<String> items;
+    private MainPresenter mainPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mainPresenter = new MainPresenter(new MainInteractor(), this);
+        mainPresenter.onStartProduction();
+        setUpViews();
+    }
+
+    private void setUpViews() {
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -37,21 +50,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        setUpViews();
-    }
-
-    private void setUpViews() {
         recyclerView = (RecyclerView) findViewById(R.id.list_view);
-        items = new ArrayList<>(5);
-        items.add("Pizza");
-        items.add("MilkShake");
-        items.add("Coca Cola");
-        items.add("Chicken");
-        items.add("Ice Tea");
-
-        mainAdapter = new MainAdapter(this, items);
+        mainAdapter = new MainAdapter(this);
         recyclerView.setAdapter(mainAdapter);
-
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
@@ -75,5 +76,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void update(List<String> items) {
+        mainAdapter.update(items);
     }
 }
