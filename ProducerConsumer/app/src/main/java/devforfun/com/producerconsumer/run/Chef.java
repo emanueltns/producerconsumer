@@ -1,6 +1,9 @@
 package devforfun.com.producerconsumer.run;
 
+import android.util.Log;
+
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
 
 /**
  * @author emanueltanasa Date: 11/3/16.
@@ -9,33 +12,36 @@ import java.util.concurrent.TimeUnit;
 public class Chef implements Runnable {
     private Restaurant restaurant;
     private int count;
+    private Restaurant.RestaurantCallBack callBack;
 
-    public Chef(Restaurant restaurant){
+    public Chef(Restaurant restaurant, Restaurant.RestaurantCallBack callBack){
         this.restaurant = restaurant;
+        this.callBack = callBack;
     }
 
     @Override
     public void run() {
+        Log.d("msg","chef");
         try {
             while (!Thread.interrupted()) {
-                synchronized (this){
+                synchronized (this) {
                     while (restaurant.meal != null) {
                         wait();//...for the meal to be taken
                     }
                 }
-            }
 
-            if(++count == 10) {
-                System.out.print("Out of food. Closing");
-                restaurant.executorService.shutdownNow();
-            }
+                if (++count == 10) {
+                    callBack.sendMessage("Out of food. Closing");
+                    restaurant.executorService.shutdownNow();
+                }
 
-            System.out.print("Order Up!");
-            synchronized (restaurant.waitPerson) {
-                restaurant.meal = new Meal(count);
-                restaurant.waitPerson.notifyAll();
+                callBack.sendMessage("Order Up!");
+                synchronized (restaurant.waitPerson) {
+                    restaurant.meal = new Meal(count);
+                    restaurant.waitPerson.notifyAll();
+                }
+                TimeUnit.MILLISECONDS.sleep(1000);
             }
-            TimeUnit.MILLISECONDS.sleep(100);
         }catch (InterruptedException e) {
             System.out.print("Chef interupted");
         }

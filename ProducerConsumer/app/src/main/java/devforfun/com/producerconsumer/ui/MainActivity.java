@@ -7,14 +7,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import devforfun.com.producerconsumer.interactors.MainInteractor;
 import devforfun.com.producerconsumer.presenters.MainPresenter;
+import devforfun.com.producerconsumer.run.Restaurant;
 import devforfun.com.producerconsumer.view.MainView;
 import devforfun.com.producerconsumer.R;
 
@@ -30,9 +34,20 @@ public class MainActivity extends AppCompatActivity implements MainView {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mainPresenter = new MainPresenter(new MainInteractor(), this);
+        mainPresenter = new MainPresenter(this);
         mainPresenter.onStartProduction();
         setUpViews();
+
+
+        ExecutorService service = Executors.newFixedThreadPool(2);
+        service.execute(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("msg", "run");
+            }
+        });
+
+
     }
 
     private void setUpViews() {
@@ -79,7 +94,13 @@ public class MainActivity extends AppCompatActivity implements MainView {
     }
 
     @Override
-    public void update(List<String> items) {
-        mainAdapter.update(items);
+    public void update(final List<String> items) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mainAdapter.update(items);
+            }
+        });
+
     }
 }

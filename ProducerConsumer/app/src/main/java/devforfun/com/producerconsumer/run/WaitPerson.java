@@ -1,5 +1,9 @@
 package devforfun.com.producerconsumer.run;
 
+import android.util.Log;
+
+import devforfun.com.producerconsumer.interactors.MainInteractor;
+
 /**
  * @author emanueltanasa Date: 11/3/16.
  */
@@ -7,31 +11,35 @@ package devforfun.com.producerconsumer.run;
 public class WaitPerson implements Runnable {
 
     private Restaurant restaurant;
+    private Restaurant.RestaurantCallBack callBack;
 
-    public WaitPerson(Restaurant restaurant) {
+
+    public WaitPerson(Restaurant restaurant, Restaurant.RestaurantCallBack callBack) {
         this.restaurant = restaurant;
+        this.callBack = callBack;
     }
 
     @Override
     public void run() {
-
+        Log.d("msg", "waitperson");
         try {
-            while(!Thread.interrupted()) {
+            while (!Thread.interrupted()) {
                 synchronized (this) {
-                    while(restaurant.meal == null){
+                    while (restaurant.meal == null) {
                         wait();//...for the chef to produce a meal
                     }
                 }
-            }
-            System.out.print("Wait person got " + restaurant.meal);
 
-            synchronized (restaurant.chef) {
-                restaurant.meal = null;
-                restaurant.chef.notifyAll(); // Ready for another
+                callBack.sendMessage("Wait person got " + restaurant.meal);
+
+                synchronized (restaurant.chef) {
+                    restaurant.meal = null;
+                    restaurant.chef.notifyAll(); // Ready for another
+                }
             }
         } catch (InterruptedException e) {
             //print this
-            System.out.print( "Wait person interupted");
+            System.out.print("Wait person interupted");
         }
 
     }

@@ -36,6 +36,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
 
     public void update(List<String> items){
         this.items = items;
+        notifyDataSetChanged();
     }
 
     @Override
